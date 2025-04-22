@@ -1,6 +1,6 @@
 // components/GameBoard.tsx
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 const GRID_SIZE = 4;
 
@@ -43,7 +43,7 @@ export default function GameBoard() {
           style={[styles.button, isPressed && styles.pressed, isBomb && styles.bomb]}
           onPress={() => handlePress(index)}
         >
-          {isPressed && <Text style={styles.buttonText}>{isBomb ? "💣" : "✔"}</Text>}
+          {isPressed && <Text style={styles.buttonText}>{isBomb ? '💣' : '✔'}</Text>}
         </TouchableOpacity>
       );
     });
@@ -66,27 +66,27 @@ export default function GameBoard() {
 }
 
 const styles = StyleSheet.create({
-  wrapper: { alignItems: "center" },
+  wrapper: { alignItems: 'center' },
   title: { fontSize: 24, marginBottom: 20 },
-  grid: { flexDirection: "row", flexWrap: "wrap", width: 240 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', width: 240 },
   button: {
     width: 55,
     height: 55,
     margin: 2,
-    backgroundColor: "#ccc",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 8,
   },
-  pressed: { backgroundColor: "#aaa" },
-  bomb: { backgroundColor: "red" },
+  pressed: { backgroundColor: '#aaa' },
+  bomb: { backgroundColor: 'red' },
   buttonText: { fontSize: 18 },
-  gameOverText: { fontSize: 22, color: "red", marginVertical: 20 },
+  gameOverText: { fontSize: 22, color: 'red', marginVertical: 20 },
   resetButton: {
-    backgroundColor: "#333",
+    backgroundColor: '#333',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 6,
   },
-  resetText: { color: "#fff", fontSize: 16 },
+  resetText: { color: '#fff', fontSize: 16 },
 });
