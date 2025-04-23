@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Button, Platform, SafeAreaView } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { useSettingsStore } from '../stores/settingsStore';
 
 export default function SettingsScreen() {
@@ -8,51 +9,58 @@ export default function SettingsScreen() {
   const bombCount = useSettingsStore((state) => state.bombCount);
   const setBombCount = useSettingsStore((state) => state.setBombCount);
 
+  const prevButtonCountRef = useRef(buttonCount);
+
+  const handleButtonCountChange = (newCount: number) => {
+    const prevCount = prevButtonCountRef.current;
+    if (newCount < prevCount && prevCount !== 0 && bombCount > 0) {
+      const ratio = newCount / prevCount;
+      const adjustedBombCount = Math.floor(bombCount * ratio);
+      // 最小1、最大newCountに制限
+      const newBombCount = Math.min(Math.max(adjustedBombCount, 1), newCount);
+      setBombCount(newBombCount);
+    }
+    setButtonCount(newCount);
+    prevButtonCountRef.current = newCount;
+  };
+
+  useEffect(() => {
+    if (bombCount > buttonCount) {
+      setBombCount(buttonCount);
+    }
+  }, [buttonCount]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>スイッチの個数を選択</Text>
-        <Text style={styles.currentCount}>現在：{buttonCount}個</Text>
-
-        <ScrollView
-          horizontal
-          contentContainerStyle={styles.buttons}
-          showsHorizontalScrollIndicator={false}
+      <Text style={styles.title}>スイッチの個数</Text>
+      <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={buttonCount}
+          onValueChange={(value) => {
+            setButtonCount(value);
+            handleButtonCountChange(value);
+          }}
+          style={styles.picker}
         >
-          {[...Array(60)].map((_, i) => {
-            const count = i + 1; // 1〜60
-            return (
-              <View key={count} style={styles.buttonWrapper}>
-                <Button
-                  title={`${count}個`}
-                  onPress={() => setButtonCount(count)}
-                  color={count === buttonCount ? '#007AFF' : '#999'}
-                />
-              </View>
-            );
-          })}
-        </ScrollView>
-      </View>
-      <View style={{ marginTop: 40 }}>
-        <Text style={styles.title}>爆弾の個数を選択</Text>
-        <ScrollView
-          horizontal
-          contentContainerStyle={styles.buttons}
-          showsHorizontalScrollIndicator={false}
-        >
-          {[...Array(9)].map((_, i) => {
+          {Array.from({ length: 60 }, (_, i) => {
             const count = i + 1;
-            return (
-              <View key={count} style={styles.buttonWrapper}>
-                <Button
-                  title={`💣${count}`}
-                  onPress={() => setBombCount(count)}
-                  color={count === bombCount ? '#FF3B30' : '#999'}
-                />
-              </View>
-            );
+            return <Picker.Item key={count} label={`🔘${count}個`} value={count} />;
           })}
-        </ScrollView>
+        </Picker>
+      </View>
+
+      <Text style={[styles.title, { marginTop: 32 }]}>爆弾の個数</Text>
+      <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={bombCount}
+          onValueChange={(value) => setBombCount(value)}
+          style={styles.picker}
+        >
+          {Array.from({ length: buttonCount }, (_, i) => {
+            const count = i + 1;
+            return <Picker.Item key={count} label={`💣 ${count}個`} value={count} />;
+          })}
+        </Picker>
       </View>
     </SafeAreaView>
   );
@@ -63,32 +71,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 60,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
     paddingHorizontal: 20,
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '600',
     marginBottom: 10,
-    textAlign: 'center',
   },
-  currentCount: {
-    fontSize: 18,
-    color: '#444',
+  pickerWrapper: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    overflow: 'hidden',
     marginBottom: 20,
-    textAlign: 'center',
+    width: '100%',
   },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  buttonWrapper: {
-    marginHorizontal: 6,
-    marginVertical: 6,
+  picker: {
+    height: 55,
+    width: '100%',
   },
 });

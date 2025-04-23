@@ -76,7 +76,7 @@ export default function GameBoard() {
 
   return (
     <View style={styles.wrapper}>
-      <Text style={styles.title}>爆破スイッチゲーム　残💣{remainingBombs}個</Text>
+      <Text style={styles.title}>残💣{remainingBombs}個</Text>
       <ScrollView contentContainerStyle={styles.grid}>{renderButtons()}</ScrollView>
       {gameOver && (
         <View style={styles.overlay}>
@@ -94,7 +94,7 @@ export default function GameBoard() {
 
 const styles = StyleSheet.create({
   wrapper: { alignItems: 'center' },
-  title: { fontSize: 24, marginTop: 60, marginBottom: 20 },
+  title: { fontSize: 24, marginTop: 10, marginBottom: 20 },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
