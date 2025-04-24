@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useSettingsStore } from '../stores/settingsStore';
 
@@ -11,24 +11,31 @@ export default function SettingsScreen() {
 
   const prevButtonCountRef = useRef(buttonCount);
 
+  // スイッチ数変更時の処理（減らしたら爆弾数も縮小）
   const handleButtonCountChange = (newCount: number) => {
     const prevCount = prevButtonCountRef.current;
     if (newCount < prevCount && prevCount !== 0 && bombCount > 0) {
       const ratio = newCount / prevCount;
       const adjustedBombCount = Math.floor(bombCount * ratio);
-      // 最小1、最大newCountに制限
-      const newBombCount = Math.min(Math.max(adjustedBombCount, 1), newCount);
+      const newBombCount = Math.min(Math.max(adjustedBombCount, 1), newCount - 1);
       setBombCount(newBombCount);
     }
     setButtonCount(newCount);
     prevButtonCountRef.current = newCount;
   };
 
+  // 爆弾数がスイッチ数以上にならないように調整
   useEffect(() => {
-    if (bombCount > buttonCount) {
-      setBombCount(buttonCount);
+    if (bombCount >= buttonCount) {
+      setBombCount(buttonCount - 1);
     }
   }, [buttonCount]);
+
+  // 爆弾数選択時の制御
+  const handleBombCountChange = (newCount: number) => {
+    const safeValue = Math.min(newCount, buttonCount - 1);
+    setBombCount(safeValue);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -38,9 +45,7 @@ export default function SettingsScreen() {
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={buttonCount}
-              onValueChange={(value) => {
-                handleButtonCountChange(value);
-              }}
+              onValueChange={(value) => handleButtonCountChange(value)}
               style={styles.picker}
               itemStyle={styles.pickerItem}
             >
@@ -57,7 +62,7 @@ export default function SettingsScreen() {
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={bombCount}
-              onValueChange={(value) => setBombCount(value)}
+              onValueChange={(value) => handleBombCountChange(value)}
               style={styles.picker}
               itemStyle={styles.pickerItem}
             >
@@ -82,12 +87,6 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingBottom: 40,
     alignItems: 'center',
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '700',
-    marginBottom: 32,
-    color: '#333',
   },
   card: {
     width: '100%',
