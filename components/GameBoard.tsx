@@ -12,23 +12,40 @@ export default function GameBoard() {
   const buttonCount = useSettingsStore((state: { buttonCount: number }) => state.buttonCount);
   const bombCount = useSettingsStore((state: { bombCount: number }) => state.bombCount);
   const [bombIndexes, setBombIndexes] = useState<number[]>([]);
+  // 残爆弾数
   const [remainingBombs, setRemainingBombs] = useState(0);
+  // 残安全スイッチ数
+  const [remainingSafe, setRemainingSafe] = useState(0);
+  // 残スイッチ数
   const [remainingUntouched, setRemainingUntouched] = useState(0);
   const [pressed, setPressed] = useState<boolean[]>([]);
+  // 最後に押したスイッチのindex
   const [lastPressedIndex, setLastPressedIndex] = useState<number | null>(null);
   const [revealedBombs, setRevealedBombs] = useState<number[]>([]);
+  // ゲームオーバー
   const [gameOver, setGameOver] = useState(false);
+  // ゲームクリア
   const [gameClear, setGameClear] = useState(false);
 
+  // リセット
   useEffect(() => {
     resetGame();
   }, [buttonCount, bombCount]);
 
+  // 残スイッチ数を計算
   useEffect(() => {
     const untouched = pressed.filter((p) => !p).length;
     setRemainingUntouched(untouched);
   }, [pressed]);
 
+  // 残安全スイッチ数を計算
+  useEffect(() => {
+    const pressedSafe = pressed.filter((_, i) => !bombIndexes.includes(i) && pressed[i]).length;
+    const safeRemaining = buttonCount - bombIndexes.length - pressedSafe;
+    setRemainingSafe(safeRemaining);
+  }, [pressed, bombIndexes, buttonCount]);
+
+  // ゲームオーバー・ゲームクリア時
   useEffect(() => {
     if (gameOver) return;
     const totalSafe = buttonCount - bombIndexes.length;
@@ -60,7 +77,12 @@ export default function GameBoard() {
     setLastPressedIndex(index);
     if (bombIndexes.includes(index)) {
       setRevealedBombs((prev) => [...prev, index]);
-      setGameOver(true);
+      const remaining = remainingBombs - 1;
+      setRemainingBombs(remaining);
+      // 最後の爆弾だったらゲームオーバー
+      if (remaining === 0) {
+        setGameOver(true);
+      }
     }
   };
 
@@ -91,7 +113,7 @@ export default function GameBoard() {
   return (
     <View style={styles.wrapper}>
       <Text style={styles.title}>
-        あと 💣{remainingBombs}個/◻️{remainingUntouched}個
+        残り ◻️{remainingUntouched}個(💣{remainingBombs}個/☑️{remainingSafe}個)
       </Text>
       <ScrollView contentContainerStyle={styles.grid}>{renderButtons()}</ScrollView>
       {gameOver && (
