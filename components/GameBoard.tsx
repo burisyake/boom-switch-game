@@ -13,14 +13,31 @@ export default function GameBoard() {
   const bombCount = useSettingsStore((state: { bombCount: number }) => state.bombCount);
   const [bombIndexes, setBombIndexes] = useState<number[]>([]);
   const [remainingBombs, setRemainingBombs] = useState(0);
+  const [remainingUntouched, setRemainingUntouched] = useState(0);
   const [bombIndex, setBombIndex] = useState<number | null>(null);
   const [pressed, setPressed] = useState<boolean[]>([]);
   const [revealedBombs, setRevealedBombs] = useState<number[]>([]);
   const [gameOver, setGameOver] = useState(false);
+  const [gameClear, setGameClear] = useState(false);
 
   useEffect(() => {
     resetGame();
   }, [buttonCount, bombCount]);
+
+  useEffect(() => {
+    const untouched = pressed.filter((p) => !p).length;
+    setRemainingUntouched(untouched);
+  }, [pressed]);
+
+  useEffect(() => {
+    if (gameOver) return;
+    const totalSafe = buttonCount - bombIndexes.length;
+    const pressedSafe = pressed.filter((_, i) => !bombIndexes.includes(i) && pressed[i]).length;
+    if (pressedSafe === totalSafe) {
+      setGameClear(true);
+      setGameOver(true);
+    }
+  }, [pressed, bombIndexes, buttonCount, gameOver]);
 
   const resetGame = () => {
     const indexes = new Set<number>();
@@ -30,25 +47,19 @@ export default function GameBoard() {
     setBombIndexes(Array.from(indexes));
     setPressed(Array(buttonCount).fill(false));
     setGameOver(false);
+    setGameClear(false);
     setRemainingBombs(bombCount);
     setRevealedBombs([]);
   };
 
   const handlePress = (index: number) => {
     if (gameOver || pressed[index]) return;
-
     const updated = [...pressed];
     updated[index] = true;
     setPressed(updated);
-
     if (bombIndexes.includes(index)) {
       setRevealedBombs((prev) => [...prev, index]);
-      const newRemaining = remainingBombs - 1;
-      setRemainingBombs(newRemaining);
-
-      if (newRemaining === 0) {
-        setGameOver(true);
-      }
+      setGameOver(true);
     }
   };
 
@@ -76,12 +87,16 @@ export default function GameBoard() {
 
   return (
     <View style={styles.wrapper}>
-      <Text style={styles.title}>残💣{remainingBombs}個</Text>
+      <Text style={styles.title}>
+        あと 💣{remainingBombs}個/◻️{remainingUntouched}個
+      </Text>
       <ScrollView contentContainerStyle={styles.grid}>{renderButtons()}</ScrollView>
       {gameOver && (
         <View style={styles.overlay}>
           <View style={styles.gameOverBox}>
-            <Text style={styles.gameOverText}>💥 ゲームオーバー 💥</Text>
+            <Text style={styles.gameOverText}>
+              {gameClear ? '🎉 ゲームクリア 🎉' : '💥 ゲームオーバー 💥'}
+            </Text>
             <TouchableOpacity style={styles.resetButton} onPress={resetGame}>
               <Text style={styles.resetText}>もう一度</Text>
             </TouchableOpacity>

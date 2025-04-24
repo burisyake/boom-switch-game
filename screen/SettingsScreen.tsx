@@ -61,7 +61,7 @@ export default function SettingsScreen() {
               style={styles.picker}
               itemStyle={styles.pickerItem}
             >
-              {Array.from({ length: buttonCount }, (_, i) => {
+              {Array.from({ length: buttonCount - 1 }, (_, i) => {
                 const count = i + 1;
                 return <Picker.Item key={count} label={`💣 ${count} 個`} value={count} />;
               })}
