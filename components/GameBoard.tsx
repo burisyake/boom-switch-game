@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     paddingHorizontal: BUTTON_MARGIN,
+    minWidth: SCREEN_WIDTH,
   },
   button: {
     margin: BUTTON_MARGIN,
