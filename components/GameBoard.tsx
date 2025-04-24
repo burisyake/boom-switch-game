@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { useSettingsStore } from '../stores/settingsStore';
 
@@ -9,8 +9,11 @@ const TOTAL_MARGIN = BUTTON_MARGIN * (MAX_COLUMNS + 1);
 const BUTTON_WIDTH = (SCREEN_WIDTH - TOTAL_MARGIN) / MAX_COLUMNS;
 
 export default function GameBoard() {
+  // スイッチ総数
   const buttonCount = useSettingsStore((state: { buttonCount: number }) => state.buttonCount);
+  // 爆弾総数
   const bombCount = useSettingsStore((state: { bombCount: number }) => state.bombCount);
+  // 爆弾のindex
   const [bombIndexes, setBombIndexes] = useState<number[]>([]);
   // 残爆弾数
   const [remainingBombs, setRemainingBombs] = useState(0);
@@ -18,9 +21,11 @@ export default function GameBoard() {
   const [remainingSafe, setRemainingSafe] = useState(0);
   // 残スイッチ数
   const [remainingUntouched, setRemainingUntouched] = useState(0);
+  // 各スイッチが押されたかをindex順に保持
   const [pressed, setPressed] = useState<boolean[]>([]);
   // 最後に押したスイッチのindex
   const [lastPressedIndex, setLastPressedIndex] = useState<number | null>(null);
+  // スイッチを押して発見された爆弾のindex
   const [revealedBombs, setRevealedBombs] = useState<number[]>([]);
   // ゲームオーバー
   const [gameOver, setGameOver] = useState(false);
@@ -28,13 +33,14 @@ export default function GameBoard() {
   const [gameClear, setGameClear] = useState(false);
 
   // リセット
-  useEffect(() => {
+  useLayoutEffect(() => {
     resetGame();
   }, [buttonCount, bombCount]);
 
   // 残スイッチ数を計算
   useEffect(() => {
-    const untouched = pressed.filter((p) => !p).length;
+    const validPressed = pressed.map((v) => v === true);
+    const untouched = validPressed.filter((p) => !p).length;
     setRemainingUntouched(untouched);
   }, [pressed]);
 
@@ -45,7 +51,7 @@ export default function GameBoard() {
     setRemainingSafe(safeRemaining);
   }, [pressed, bombIndexes, buttonCount]);
 
-  // ゲームオーバー・ゲームクリア時
+  // ゲームオーバー・ゲームクリア判定
   useEffect(() => {
     if (gameOver) return;
     const totalSafe = buttonCount - bombIndexes.length;
@@ -56,23 +62,29 @@ export default function GameBoard() {
     }
   }, [pressed, bombIndexes, buttonCount, gameOver]);
 
+  // 再ゲームのための初期設定
   const resetGame = () => {
+    const currentButtonCount = Number(buttonCount);
+    const currentbombCount = Number(bombCount);
+    const newPressed = Array(currentButtonCount).fill(false);
     const indexes = new Set<number>();
-    while (indexes.size < bombCount) {
-      indexes.add(Math.floor(Math.random() * buttonCount));
+    while (indexes.size < currentbombCount) {
+      indexes.add(Math.floor(Math.random() * currentButtonCount));
     }
     setBombIndexes(Array.from(indexes));
-    setPressed(Array(buttonCount).fill(false));
+    setPressed(newPressed);
     setGameOver(false);
     setGameClear(false);
-    setRemainingBombs(bombCount);
+    setRemainingBombs(currentbombCount);
     setRevealedBombs([]);
   };
 
+  // スイッチ押下時の処理
   const handlePress = (index: number) => {
-    if (gameOver || pressed[index]) return;
-    const updated = [...pressed];
+    if (gameOver || pressed[index] === true) return;
+    const updated = Array.from({ length: buttonCount }, (_, i) => pressed[i] === true);
     updated[index] = true;
+    console.log('updated', updated);
     setPressed(updated);
     setLastPressedIndex(index);
     if (bombIndexes.includes(index)) {
@@ -86,6 +98,7 @@ export default function GameBoard() {
     }
   };
 
+  // スイッチの描画処理
   const renderButtons = () => {
     return Array.from({ length: buttonCount }).map((_, index) => {
       const isPressed = pressed[index];
