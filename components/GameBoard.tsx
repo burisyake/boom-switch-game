@@ -14,8 +14,8 @@ export default function GameBoard() {
   const [bombIndexes, setBombIndexes] = useState<number[]>([]);
   const [remainingBombs, setRemainingBombs] = useState(0);
   const [remainingUntouched, setRemainingUntouched] = useState(0);
-  const [bombIndex, setBombIndex] = useState<number | null>(null);
   const [pressed, setPressed] = useState<boolean[]>([]);
+  const [lastPressedIndex, setLastPressedIndex] = useState<number | null>(null);
   const [revealedBombs, setRevealedBombs] = useState<number[]>([]);
   const [gameOver, setGameOver] = useState(false);
   const [gameClear, setGameClear] = useState(false);
@@ -57,6 +57,7 @@ export default function GameBoard() {
     const updated = [...pressed];
     updated[index] = true;
     setPressed(updated);
+    setLastPressedIndex(index);
     if (bombIndexes.includes(index)) {
       setRevealedBombs((prev) => [...prev, index]);
       setGameOver(true);
@@ -67,6 +68,7 @@ export default function GameBoard() {
     return Array.from({ length: buttonCount }).map((_, index) => {
       const isPressed = pressed[index];
       const isBomb = revealedBombs.includes(index);
+      const isLast = gameClear && lastPressedIndex === index;
 
       return (
         <TouchableOpacity
@@ -76,6 +78,7 @@ export default function GameBoard() {
             { width: BUTTON_WIDTH, height: BUTTON_WIDTH },
             isPressed && styles.pressed,
             isBomb && styles.bomb,
+            isLast && styles.success,
           ]}
           onPress={() => handlePress(index)}
         >
@@ -126,6 +129,9 @@ const styles = StyleSheet.create({
   },
   pressed: { backgroundColor: '#aaa' },
   bomb: { backgroundColor: 'red' },
+  success: {
+    backgroundColor: 'mediumseagreen',
+  },
   buttonText: { fontSize: 24 },
   overlay: {
     position: 'absolute',
