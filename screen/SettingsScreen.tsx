@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useSettingsStore } from '../stores/settingsStore';
+import AdBanner from '../components/AdBanner';
 
 export default function SettingsScreen() {
   const buttonCount = useSettingsStore((state) => state.buttonCount);
@@ -74,6 +75,7 @@ export default function SettingsScreen() {
           </View>
         </View>
       </View>
+      <AdBanner />
     </SafeAreaView>
   );
 }
@@ -84,6 +86,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
   },
   container: {
+    flex: 1,
     padding: 24,
     paddingBottom: 40,
     alignItems: 'center',

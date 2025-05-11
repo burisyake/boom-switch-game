@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
+import AdBanner from '../components/AdBanner';
 
 const appList = [
   {
@@ -49,6 +50,7 @@ export default function RecommendScreen() {
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.row}
       />
+      <AdBanner />
     </SafeAreaView>
   );
 }
