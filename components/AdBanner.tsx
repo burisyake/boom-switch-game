@@ -1,15 +1,11 @@
-import { AdMobBanner } from 'expo-ads-admob';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 
 export default function AdBanner() {
   return (
     <View style={{ alignItems: 'center' }}>
-      <AdMobBanner
-        bannerSize="smartBannerPortrait"
-        adUnitID="ca-app-pub-1713263180391946/1336987579"
-        servePersonalizedAds={false}
-        onDidFailToReceiveAdWithError={(err) => console.warn('Ad error:', err)}
-      />
+      <Text>ーーーーーーテストーーーーーー</Text>
+      <Text>ーーーーーーテストーーーーーー</Text>
+      <Text>ーーーーーーテストーーーーーー</Text>
     </View>
   );
 }
