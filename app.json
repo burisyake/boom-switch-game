@@ -2,7 +2,7 @@
   "expo": {
     "name": "boom-switch-game",
     "slug": "boom-switch-game",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -26,7 +26,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.burisyake.boomswitchgame"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,6 +36,16 @@
       "eas": {
         "projectId": "f17dce00-1a28-4899-9b7a-1bfad402a0b2"
       }
-    }
+    },
+    "plugins": [
+      [
+        "react-native-google-mobile-ads",
+        {
+          "iosAppId": "ca-app-pub-1713263180391946~4234635734",
+          "androidAppId": "ca-app-pub-1713263180391946~4234635734"
+        }
+      ],
+      "expo-font"
+    ]
   }
 }

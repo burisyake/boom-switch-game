@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import SwitchGameScreen from './screen/SwitchGameScreen';
 import SettingsScreen from './screen/SettingsScreen';
 import RecommendScreen from './screen/RecommendScreen';
 import { Ionicons } from '@expo/vector-icons';
+import mobileAds from 'react-native-google-mobile-ads';
 
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  useEffect(() => {
+    mobileAds()
+      .initialize()
+      .then(() => {
+        console.log('AdMob initialized');
+      });
+  }, []);
   return (
     <NavigationContainer>
       <Tab.Navigator
